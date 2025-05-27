@@ -264,10 +264,31 @@ Building the Feed and Pagination:
 - limit will limit the number of records returned
 
 
-
-
-
-
+Sending Email using SES:
+- create IAM user in aws console site
+    - give it full access to ses amazonsesfullaccess checkbox
+- go to created iam user's security information
+    - create access key, copy access key and secret and add in .env
+- go to amazon ses identities and create identity:
+    - verify domain if any
+    - else choose and verify email address
+    - request for production ses access, if domain is there and verified
+- go to AWS sdk V3 (v3 is latest and v2 is old but popular as already in use)
+    - https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/javascript_ses_code_examples.html
+    - https://github.com/awsdocs/aws-doc-sdk-examples/tree/main/javascriptv3/example_code/ses#code-examples
+- open github link above
+    - go to src and ses_sendemail.js file to get template code
+    - this imports lib/sesClient.js, so do same way in our project
+        - you should pass iam user credentials to SESClient, this is not there in docs
+    - install @aws-sdk/client-ses
+    - in template fill the html, text, subject as you need
+    - also pass to and from email id's
+    - now import this in connections route
+        - after sending connection request logic
+        - call this run method of sendEmail, eg. await sendEmail.run()
+        - this will then send email to the to address from the address given
+        - you can also pass params to run from connections logic, by sending dynamic params
+    - NOTE: emails should be verified both to and from to work in sandbox environment
 
 
 
