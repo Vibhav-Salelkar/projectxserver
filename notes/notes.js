@@ -269,6 +269,9 @@ Secure Credentials using dotenv:
 - create .env file
 - add constant and secret values there
 - use it in code like eg. process.env.keyName
+- deploy to server, and create .env file on server repo that you cloned similar way
+    - sudo nano .env
+    - paste your keys
 - IMP NOTE: this process dotenv cannot be used in React frontend, as browser doesnt know process, env etc.
 
 Sending Email using SES:
