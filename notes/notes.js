@@ -263,6 +263,13 @@ Building the Feed and Pagination:
     - first 10 skipped and next 10 will be returned that is 11-20
 - limit will limit the number of records returned
 
+Secure Credentials using dotenv:
+- npm install dotenv
+- in app.js on top: require("dotenv").config()
+- create .env file
+- add constant and secret values there
+- use it in code like eg. process.env.keyName
+- IMP NOTE: this process dotenv cannot be used in React frontend, as browser doesnt know process, env etc.
 
 Sending Email using SES:
 - create IAM user in aws console site

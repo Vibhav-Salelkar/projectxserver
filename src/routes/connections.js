@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const sendEmail = require('../utils/sendEmail');
 
 const User = require("../models/user");
 const isAuth = require("../middlewares/authMiddleware");
@@ -42,6 +43,7 @@ connectionsRouter.post("/request/send/:status/:toUserId", isAuth, async (req, re
         });
 
         await connection.save();
+        const emailRes = await sendEmail.run(`${fromUser.firstName} Sent you Connection Request!`);
 
         res.status(200).json({message: `${fromUser.firstName} ${status} ${status === "interested"? "in " : ""}connection request to ${toUser.firstName}`});
 

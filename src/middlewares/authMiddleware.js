@@ -10,7 +10,7 @@ const isAuth = async (req, res, next) => {
         }
 
         //decode the token and get the hidden id added during signing/creation
-        const decoded = await jwt.verify(token, "ProjectX@123");
+        const decoded = await jwt.verify(token, process.env.JWT_SECRET);
         console.log(decoded);
         const userId = decoded.id;
 
