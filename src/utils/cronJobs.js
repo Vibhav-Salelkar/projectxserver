@@ -23,12 +23,10 @@ cron.schedule('10 17 * * *', async () => {
         }).populate("fromUserId toUserId")
 
         const list = [...new Set(pendingRequests.map(req=>req.toUserId.email))];
-        console.log(list)
 
         for(const email of list) {
             try {
                 const emailRes = await sendEmail.run(`New Friend request pending for ${email}`);
-                console.log(emailRes)
             }catch(err) {
                 console.log(err)
             }

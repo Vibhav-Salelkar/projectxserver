@@ -26,7 +26,6 @@ connectionSchema.index({ fromUserId: 1, toUserId: 1 });
 
 connectionSchema.pre("save", function (next) {
     const connection = this;
-    console.log(connection.fromUserId, connection.toUserId);   
     if(connection.fromUserId.equals(connection.toUserId)) {
         throw new Error("Nice try! But you cannot connect with yourself");
     }

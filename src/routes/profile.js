@@ -9,7 +9,6 @@ const profileRouter = express.Router();
 profileRouter.get("/profile/view", isAuth, async (req, res) => {
     try {
         const user = req.user; // Access the user from the request object
-        console.log(user);
         if (!user) {
             return res.status(404).json({ message: "Something went wrong" });
         }

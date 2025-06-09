@@ -11,12 +11,10 @@ const isAuth = async (req, res, next) => {
 
         //decode the token and get the hidden id added during signing/creation
         const decoded = await jwt.verify(token, process.env.JWT_SECRET);
-        console.log(decoded);
         const userId = decoded.id;
 
         //find the user by 
         const user = await User.findById(userId);
-        console.log(user);
         if (!user) {
             return res.status(404).json({ message: "Something went wrong" });
         }

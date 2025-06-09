@@ -313,6 +313,39 @@ Scheduling Cron Jobs:
 - specify time you want and for testing schedule for next min and day sub as 0, means today
 
 
+Web Sockets and socket.io:
+- web sockets, bidirectional, both client and server send data to each other
+- event based communication between client and server
+- low latency
+- go to documentation of socket.io server
+- install socket.io: npm i socket.io
+- little diff configuration for express app
+    - create server using const server = http.createServer(app) and then pass it to socket.io
+    - listen to the server instead of app
+- pass server to socket from socket.io along with config object for cors, store it in io variable
+- use this io's on method to get socket when "connection" event is emitted
+- use custom events like "joinChat", "sendMessage" to listen to the events from client
+- client will emit event lets say "joinChat" with data like userId and targetUserId
+- server will listen to this event and join the socket to a room using socket.join(roomId)
+- roomId can be created using userId and targetUserId, like [userId, targetUserId].sort().join("_") through crypto hash
+- if roomId is same, then both users will be in the same room and can communicate with each other
+- listen to "sendMessage" event from client and emit "messageReceived" event to the room with the message data
+
+More on Web Sockets:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

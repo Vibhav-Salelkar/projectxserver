@@ -1,5 +1,10 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+
+//chat, socket.io
+const http = require("http");
+const { initializeSocket } = require("./utils/socket.js");
+
 const cors = require("cors");
 require("dotenv").config();
 require("./utils/cronJobs.js")
@@ -28,9 +33,13 @@ app.use("/", (req, res) => {
     res.status(404).json({ message: "Route not found" });
 });
 
+
+const server = http.createServer(app);
+initializeSocket(server);
+
 connectDB().then(() => {
     console.log("Connected to MongoDB");
-    app.listen(3000, () => {
+    server.listen(3000, () => {
         console.log("Server is running on port 3000");
     });
 }).catch((err) => {
