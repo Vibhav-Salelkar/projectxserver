@@ -263,6 +263,7 @@ Building the Feed and Pagination:
     - first 10 skipped and next 10 will be returned that is 11-20
 - limit will limit the number of records returned
 
+
 Secure Credentials using dotenv:
 - npm install dotenv
 - in app.js on top: require("dotenv").config()
@@ -273,6 +274,7 @@ Secure Credentials using dotenv:
     - sudo nano .env
     - paste your keys
 - IMP NOTE: this process dotenv cannot be used in React frontend, as browser doesnt know process, env etc.
+
 
 Sending Email using SES:
 - create IAM user in aws console site
@@ -301,9 +303,14 @@ Sending Email using SES:
     - NOTE: emails should be verified both to and from to work in sandbox environment
 
 
-
-
-
+Scheduling Cron Jobs:
+- install node-cron package
+- import and see how cron job works by calling given template in docs
+- install date-fns package, to get the day, date, time as you want
+- now schedule the sending email to users based on the interested requests they received previous day
+- for that import connection model to find the users using created timestamp and date-fns
+- import sendEmail function and from above step get all email ids of to-users and send them emails
+- specify time you want and for testing schedule for next min and day sub as 0, means today
 
 
 
