@@ -332,10 +332,14 @@ Web Sockets and socket.io:
 - listen to "sendMessage" event from client and emit "messageReceived" event to the room with the message data
 
 More on Web Sockets:
-
-
-
-
+- create chat schema, that stored participants
+- participants can be array of userIds, because chat can be group chat and we dont restrict it to two users
+- create message schema with senderId and text
+- include message schema in chat schema messages array
+- on socket send message event, save the message to the chat schema
+- create chat route to get chat between two users
+- find chat by participants, if not found create new chat with participants and empty messages array
+- send chat data back to the client
 
 
 

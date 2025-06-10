@@ -14,6 +14,7 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const userRouter = require("./routes/user");
 const connectionsRouter = require("./routes/connections");
+const chatRouter = require("./routes/chat");
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", userRouter);
 app.use("/", connectionsRouter);
+app.use("/", chatRouter);
 
 app.use("/", (req, res) => {
     res.status(404).json({ message: "Route not found" });
