@@ -177,7 +177,7 @@ Authentication, JWT and Cookies:
 - create a function in userSchema to create a JWT token and send it in the response
 - create a function in userSchema to verify the password
 - make sure you dont use arrow functions in the schema methods, use regular function instead
-Concepts:
+- Concepts:
 - user logs in using /login route:
     - username and password are sent in the body of the request, are verified by the server using bcrypt
     - if verified, a JWT token is generated using jsonwebtoken library
@@ -199,7 +199,7 @@ Diving into API and Router:
 - import routes in app.js and use it as middleware
 - use app.use("/api/v1", routes) to use the routes 
 - create a route for logout
-Concepts:
+- Concepts:
 - APIs:
     - authRouter
         - /signup
@@ -331,6 +331,7 @@ Web Sockets and socket.io:
 - if roomId is same, then both users will be in the same room and can communicate with each other
 - listen to "sendMessage" event from client and emit "messageReceived" event to the room with the message data
 
+
 More on Web Sockets:
 - create chat schema, that stored participants
 - participants can be array of userIds, because chat can be group chat and we dont restrict it to two users
@@ -342,15 +343,94 @@ More on Web Sockets:
 - send chat data back to the client
 
 
+Payment Gateway Integration with Razorpay: (Only concepts, not written code)
+- sign up on Razorpay and complete KYC - takes min 2-3 days to get approved
+- Concepts:
+- payment happens in two steps:
+    - create order
+    - payment verification
+- two apis: createOrder and verifyPayment
+- client click pay now, it calls createOrder api on backend
+- backend will call razorpay api with secret key
+- razorpay will return orderId which is unique for that order
+- backend will send this orderId to client
+- frontend will open dialog box with razorpay payment form, types of payent methods, card, upi, netbanking etc.
+- user will enter card details and click pay
+- as soon as user pays, razorpay has webhook that will inform backend about the payment and return signature and paymentId
+- backend will verify the payment using verifyPayment api
+- if success, update the order status in database and handle logic of premium access to user
+- after sometime client will call backend to check payment status and backend will show success or failure message
+
+- Backend:
+- create paymentRouter 
+- create POST api for createOrder, use auth middleware
+- npm i razorpay
+- in some utils config file, import razorpay and create instance with keyId and secret, export it
+    - eg: const instance = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_SECRET });
+    - key_id is from Razorpay dashboard. go to settings and generate key in api keys section
+    - also generate secret key. sceret is not to be shared with anyone, it is used to verify the payment. 
+- now to create order and stuffs, it is there in sample code in Razorpay docs
+- eg: in post api createOrder:
+    - import instance from utils file
+    - get membership plan from request body, like planId, pass it in notes in options
+    - first name, lastname from user object in request, req.user
+    - const options = { amount: 50000, currency: "INR", receipt: "receipt#1", 
+                        notes: { firstName: "joe", membership: "gold" etc meta data} }; // 50000 paise = 500 INR
+    - const order = await instance.orders.create(options);
+    - store order in database with userId, amount, currency, status as "created" or "pending"
+    - res.status(200).json({ ....savedPayment });
+- once you hit this post api, you will see order created in Razorpay dashboard in transactions section
+- to store the order in database, create a payment model and schema
+- eg: below is a example, but you can store all fields from order object above in the schema
+    - const paymentSchema = new mongoose.Schema({ userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, 
+        orderId: { type: String, required: true }, amount: { type: Number, required: true }, currency: { type: String, required: true }, 
+        status: { type: String, enum: ["created", "paid", "failed"], default: "created" } }, { timestamps: true });
+    - const Payment = mongoose.model("Payment", paymentSchema);
+- import this in createOrder route and save the data using this schema model in database 
+- setup webhook in Razorpay dashboard
+    - go to settings and then webhooks
+    - create webhook with url as your backend api endpoint, like https://yourdomain.com/api/v1/payment/webhook
+    - add some random secret key and click create webhook
+- now when payment is done, Razorpay will call this endpoint
+- create POST api for webhook, use auth middleware
+- in webhook route, import validateWebhookSignature function from Razorpay docs
+    - eg: import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils";
+- use this function to verify the signature of the webhook request
+- eg: const isValidSignature = validateWebhookSignature(
+        JSON.stringify(req.body), req.headers["x-razorpay-signature"], process.env.RAZORPAY_SECRET);
+- if isValidSignature is false send error response
+- else get req.body.event and check if it is payment.captured or payment.failed
+- if payment.captured, then get orderId from req.body.payload.payment.entity.order_id
+- find the payment in database using orderId and update the status to "paid" or req.body.payload.payment.entity.status
+- if payment.failed, then get orderId from req.body.payload.payment.entity.order_id
+- find the payment in database using orderId and update the status to "failed" or req.body.payload.payment.entity.status
+- also add premium and membershipType field in user schema, to check if user is premium or not
+- update user premium field to true if payment is successful and also update membershipType field
+- add /premium/verify endpoint to check if user is premium or not
+- just get req.user and check if user.premium is true or not
+- if true, return success response with user details, else return error response with message "User
 
 
-
-
-
-
-
-
-
+- Frontend:
+- create page that shows premium plans of your app and what those plans offer
+- may be in navbar add premium link
+- plans will have price and buy now or upgrade now button
+- on click of buy now button, call createOrder api on backend
+- eg: await axios.post("/api/v1/payment/createOrder", { planId: "premium" }, withCredentials: true) //returns orderId and details
+- Note: never pass amount from frontend, it should always be in backend, frontend should only pass planId or membership type
+- then you should open dialog box with Razorpay payment form - docs have example code
+- use Razorpay checkout script in index.html
+    - <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+- in sample code, you will see how to open the dialog box with Razorpay payment form
+- there will be options object, fill it with order details you got from backend from createOrder api
+- then: const razorpay = new Razorpay(options);
+- razorpay.open(); // this will open the dialog box with Razorpay payment form
+- after payment done in test mode, you can verify the payment status in razorpay dashboard in transactions section
+- in options object, you can also pass handler function that will be called after payment is successful
+    - in handler function, you can call /premium/verify api on backend to verify the payment
+    - this will return user details if payment is successful, set the premium state in frontend to true
+- based on the premium state, you can show different UI in frontend
+- when page loads call the verify function to check if user is premium or not using useEffect
 
 
 
